@@ -66,6 +66,7 @@ export interface GameState {
   gameOver: boolean;
   level: number;
   combo: number;
+  spikeLines: number;
   backToBack: boolean;
   garbageQueue: number;
   garbageSent: number;

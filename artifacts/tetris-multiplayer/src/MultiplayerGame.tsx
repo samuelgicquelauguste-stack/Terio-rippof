@@ -133,6 +133,7 @@ export function MultiplayerGame({
         bag: workingBag,
         hasHeldThisTurn: false,
         combo: currentCombo,
+        spikeLines: isLineClear ? (prev.spikeLines || 0) + garbageToSend : 0,
         backToBack: currentB2B,
         lines: prev.lines + cleared,
         level: Math.floor((prev.lines + cleared) / 10) + 1,
@@ -417,6 +418,7 @@ export function MultiplayerGame({
             bag: workingBag,
             hasHeldThisTurn: false,
             combo: currentCombo,
+            spikeLines: isLineClear ? (prev.spikeLines || 0) + garbageToSend : 0,
             backToBack: currentB2B,
             lines: prev.lines + cleared,
             level: Math.floor((prev.lines + cleared) / 10) + 1,
@@ -565,6 +567,22 @@ export function MultiplayerGame({
                 }}>
                   <div style={{ fontSize: '14px' }}>{gameState.combo}×</div>
                   <div>COMBO</div>
+                </div>
+              )}
+              {gameState.combo > 1 && gameState.spikeLines > 0 && (
+                <div style={{
+                  padding: '4px 6px',
+                  borderRadius: '4px',
+                  fontSize: '10px',
+                  fontWeight: 900,
+                  textAlign: 'center',
+                  backgroundColor: '#1e3a5f',
+                  color: '#93c5fd',
+                  border: '1px solid #3b82f6',
+                  lineHeight: 1.3,
+                }}>
+                  <div style={{ fontSize: '16px', color: '#fff' }}>{gameState.spikeLines}</div>
+                  <div>SPIKE</div>
                 </div>
               )}
             </div>
