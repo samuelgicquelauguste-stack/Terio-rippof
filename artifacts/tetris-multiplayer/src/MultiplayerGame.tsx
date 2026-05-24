@@ -478,7 +478,7 @@ export function MultiplayerGame({
                   lineHeight: 1.3,
                 }}>
                   <div style={{ fontSize: '14px' }}>{gameState.combo}×</div>
-                  <div>REN</div>
+                  <div>COMBO</div>
                 </div>
               )}
             </div>
