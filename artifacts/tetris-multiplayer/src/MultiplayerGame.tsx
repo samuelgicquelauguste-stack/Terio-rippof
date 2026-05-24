@@ -450,7 +450,19 @@ export function MultiplayerGame({
         <div className="flex flex-col items-center">
           <h2 className="text-xl font-bold mb-2 text-blue-400">You ({playerId})</h2>
           <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} />
-          <div className="mt-4 grid grid-cols-3 gap-4 text-center bg-gray-800 p-3 rounded-lg w-full">
+          <div className="mt-2 flex gap-2 h-7 items-center justify-center w-full">
+            {gameState.backToBack && (
+              <span className="px-2 py-0.5 rounded text-xs font-extrabold tracking-widest uppercase bg-purple-700 text-purple-100 shadow">
+                B2B
+              </span>
+            )}
+            {gameState.combo > 1 && (
+              <span className="px-2 py-0.5 rounded text-xs font-extrabold tracking-widest bg-orange-500 text-white shadow">
+                {gameState.combo}× COMBO
+              </span>
+            )}
+          </div>
+          <div className="mt-1 grid grid-cols-3 gap-4 text-center bg-gray-800 p-3 rounded-lg w-full">
             <div><p className="text-xs text-gray-400">Score</p><p className="text-lg font-bold text-yellow-400">{gameState.score}</p></div>
             <div><p className="text-xs text-gray-400">Lines</p><p className="text-lg font-bold text-white">{gameState.lines}</p></div>
             <div><p className="text-xs text-gray-400">Level</p><p className="text-lg font-bold text-cyan-400">{gameState.level}</p></div>
