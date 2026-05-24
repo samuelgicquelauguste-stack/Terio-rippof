@@ -61,6 +61,9 @@ export function MultiplayerGame({
     lockResetCountRef.current = 0;
 
     setGameState((prev: any) => {
+      if (prev.gameOver) return prev;
+      if (movePieceDown(prev.grid, prev.currentPiece) !== null) return prev;
+
       const finalizedGrid = placePiece(prev.grid, prev.currentPiece);
       const { grid: clearedGrid, cleared } = clearLines(finalizedGrid);
 
@@ -181,22 +184,27 @@ export function MultiplayerGame({
       dropCounter += deltaTime;
 
       if (dropCounter > Math.max(50, 1000 - (stateRef.current.level * 80))) {
-        const nextMove = movePieceDown(stateRef.current.grid, stateRef.current.currentPiece);
-        
-        if (nextMove) {
-          setGameState((prev: any) => ({ ...prev, currentPiece: nextMove }));
-          onSendMessageRef.current({ type: "gameState", playerId: playerIdRef.current, data: { ...stateRef.current, currentPiece: nextMove } });
-          
+        let didMove = false;
+        setGameState((prev: any) => {
+          if (prev.gameOver) return prev;
+          const nextMove = movePieceDown(prev.grid, prev.currentPiece);
+          if (nextMove) {
+            didMove = true;
+            return { ...prev, currentPiece: nextMove };
+          }
+          return prev;
+        });
+
+        if (didMove) {
+          onSendMessageRef.current({ type: "gameState", playerId: playerIdRef.current, data: { ...stateRef.current } });
           if (lockTimeoutRef.current) {
             clearTimeout(lockTimeoutRef.current);
             lockTimeoutRef.current = null;
           }
-        } else {
-          if (!lockTimeoutRef.current) {
-            lockTimeoutRef.current = setTimeout(() => {
-              finalizePiecePlacement();
-            }, lockDelayLimit);
-          }
+        } else if (!stateRef.current.gameOver && !lockTimeoutRef.current) {
+          lockTimeoutRef.current = setTimeout(() => {
+            finalizePiecePlacement();
+          }, lockDelayLimit);
         }
         dropCounter = 0;
       }
