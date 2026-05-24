@@ -81,7 +81,7 @@ export function createInitialGameState(): any {
     level: 1,
     combo: 0,
     spikeLines: 0,
-    backToBack: false,
+    backToBack: 0,
     garbageQueue: 0,
     garbageSent: 0,
     lastWasSpin: false,

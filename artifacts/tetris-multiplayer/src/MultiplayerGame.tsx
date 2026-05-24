@@ -91,18 +91,22 @@ export function MultiplayerGame({
       const isTSpin = lastWasSpinRef.current && prev.currentPiece.type === 6;
       const isPowerClear = cleared === 4 || isTSpin;
 
+      const isB2BBreak = isLineClear && !isPowerClear && prev.backToBack > 0;
       let currentB2B = prev.backToBack;
       if (isLineClear) {
-        currentB2B = isPowerClear ? true : false;
+        currentB2B = isPowerClear ? (prev.backToBack || 0) + 1 : 0;
       }
 
       const isPerfectClear = cleared > 0 && clearedGrid.every((row: number[]) => row.every((cell: number) => cell === 0));
       const prevIsDanger = prev.grid.slice(0, 5).some((row: number[]) => row.some((cell: number) => cell > 0));
       const isClutch = prevIsDanger && cleared > 0 && !isPerfectClear;
 
-      let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack);
+      let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack > 0);
       if (currentCombo > 1) {
         garbageToSend += Math.floor((currentCombo - 1) / 2);
+      }
+      if (isB2BBreak) {
+        garbageToSend += Math.min(Math.ceil(prev.backToBack / 4), 3);
       }
       if (isPerfectClear) {
         garbageToSend += 10;
@@ -378,17 +382,21 @@ export function MultiplayerGame({
           const isTSpin = lastWasSpinRef.current && prev.currentPiece.type === 6;
           const isPowerClear = cleared === 4 || isTSpin;
 
+          const isB2BBreak = isLineClear && !isPowerClear && prev.backToBack > 0;
           let currentB2B = prev.backToBack;
           if (isLineClear) {
-            currentB2B = isPowerClear ? true : false;
+            currentB2B = isPowerClear ? (prev.backToBack || 0) + 1 : 0;
           }
 
           const isPerfectClear = cleared > 0 && clearedGrid.every((row: number[]) => row.every((cell: number) => cell === 0));
           const prevIsDanger = prev.grid.slice(0, 5).some((row: number[]) => row.some((cell: number) => cell > 0));
           const isClutch = prevIsDanger && cleared > 0 && !isPerfectClear;
 
-          let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack);
+          let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack > 0);
           if (currentCombo > 1) garbageToSend += Math.floor((currentCombo - 1) / 2);
+          if (isB2BBreak) {
+            garbageToSend += Math.min(Math.ceil(prev.backToBack / 4), 3);
+          }
           if (isPerfectClear) {
             garbageToSend += 10;
             setTimeout(() => {
@@ -547,12 +555,17 @@ export function MultiplayerGame({
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
                 textAlign: 'center',
-                backgroundColor: gameState.backToBack ? '#7e22ce' : '#1f2937',
-                color: gameState.backToBack ? '#e9d5ff' : '#4b5563',
-                border: `1px solid ${gameState.backToBack ? '#a855f7' : '#374151'}`,
+                backgroundColor: gameState.backToBack > 0 ? '#7e22ce' : '#1f2937',
+                color: gameState.backToBack > 0 ? '#e9d5ff' : '#4b5563',
+                border: `1px solid ${gameState.backToBack > 0 ? '#a855f7' : '#374151'}`,
                 transition: 'all 0.15s',
                 lineHeight: 1.3,
-              }}>B2B</div>
+              }}>
+                {gameState.backToBack > 0 && (
+                  <div style={{ fontSize: '13px', color: '#fff' }}>{gameState.backToBack}</div>
+                )}
+                <div>B2B</div>
+              </div>
               {gameState.combo > 1 && (
                 <div style={{
                   padding: '4px 6px',
