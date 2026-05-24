@@ -271,11 +271,17 @@ export function calculateScore(linesCleared: number, combo: number = 0, isBackTo
   return Math.floor(base * comboMultiplier * b2bMultiplier);
 }
 
-export function calculateGarbageSent(linesCleared: number): number {
-  if (linesCleared === 4) return 4;
-  if (linesCleared === 3) return 2;
-  if (linesCleared === 2) return 1;
-  return 0;
+export function calculateGarbageSent(linesCleared: number, isTSpin: boolean = false, isB2B: boolean = false): number {
+  let base: number;
+  if (isTSpin) {
+    const tTable = [0, 2, 4, 6];
+    base = tTable[Math.min(linesCleared, 3)] ?? 0;
+  } else {
+    const table = [0, 0, 1, 2, 4];
+    base = table[Math.min(linesCleared, 4)] ?? 0;
+  }
+  if (isB2B && linesCleared > 0) base += 1;
+  return base;
 }
 
 export function addGarbageToGrid(grid: number[][], garbageLines: number): number[][] {

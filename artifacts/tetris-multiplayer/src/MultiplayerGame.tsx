@@ -87,15 +87,9 @@ export function MultiplayerGame({
         currentB2B = isPowerClear ? true : false;
       }
 
-      let garbageToSend = calculateGarbageSent(cleared);
-      if (isTSpin && isLineClear) {
-        garbageToSend += cleared * 2;
-      }
+      let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack);
       if (currentCombo > 1) {
         garbageToSend += Math.floor((currentCombo - 1) / 2);
-      }
-      if (currentB2B && isPowerClear && prev.backToBack) {
-        garbageToSend += 1;
       }
 
       if (garbageToSend > 0) {
@@ -358,10 +352,8 @@ export function MultiplayerGame({
             currentB2B = isPowerClear ? true : false;
           }
 
-          let garbageToSend = calculateGarbageSent(cleared);
-          if (isTSpin && isLineClear) garbageToSend += cleared * 2; 
+          let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack);
           if (currentCombo > 1) garbageToSend += Math.floor((currentCombo - 1) / 2);
-          if (currentB2B && isPowerClear && prev.backToBack) garbageToSend += 1;
 
           if (garbageToSend > 0) {
             onSendMessageRef.current({ type: "sendGarbage", playerId: playerIdRef.current, garbageLines: garbageToSend });
@@ -462,6 +454,7 @@ export function MultiplayerGame({
           <h2 className="text-xl font-bold mb-2 text-blue-400">You ({playerId})</h2>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingTop: '4px', width: '44px', alignItems: 'center' }}>
+
               <div style={{
                 padding: '4px 6px',
                 borderRadius: '4px',
@@ -494,6 +487,22 @@ export function MultiplayerGame({
               )}
             </div>
             <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} />
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', width: '10px', height: `${20 * 24}px`, backgroundColor: '#111827', borderRadius: '3px', overflow: 'hidden', border: '1px solid #1f2937' }}>
+              {Array.from({ length: 20 }).map((_, i) => {
+                const rowFromBottom = 20 - i;
+                const filled = rowFromBottom <= Math.min(incomingGarbage, 20);
+                const intensity = filled ? Math.min(1, incomingGarbage / 8) : 0;
+                return (
+                  <div key={i} style={{
+                    flex: 1,
+                    backgroundColor: filled
+                      ? `rgb(${Math.round(220 + 35 * intensity)}, ${Math.round(80 - 60 * intensity)}, ${Math.round(50 - 40 * intensity)})`
+                      : 'transparent',
+                    transition: 'background-color 0.1s',
+                  }} />
+                );
+              })}
+            </div>
           </div>
           <div className="mt-2 grid grid-cols-3 gap-4 text-center bg-gray-800 p-3 rounded-lg w-full">
             <div><p className="text-xs text-gray-400">Score</p><p className="text-lg font-bold text-yellow-400">{gameState.score}</p></div>
