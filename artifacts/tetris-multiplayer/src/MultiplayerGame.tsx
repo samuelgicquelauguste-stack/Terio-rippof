@@ -33,6 +33,8 @@ export function MultiplayerGame({
   const [gameState, setGameState] = useState(createInitialGameState());
   const [isGameActive, setIsGameActive] = useState(false);
   const [opponentGameOver, setOpponentGameOver] = useState(false);
+  const [perfectClearFlash, setPerfectClearFlash] = useState(false);
+  const perfectClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dasDelay = 170;
   const arrRate = 30;
   const dasTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -87,9 +89,19 @@ export function MultiplayerGame({
         currentB2B = isPowerClear ? true : false;
       }
 
+      const isPerfectClear = cleared > 0 && clearedGrid.every((row: number[]) => row.every((cell: number) => cell === 0));
+
       let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack);
       if (currentCombo > 1) {
         garbageToSend += Math.floor((currentCombo - 1) / 2);
+      }
+      if (isPerfectClear) {
+        garbageToSend += 10;
+        setTimeout(() => {
+          if (perfectClearTimerRef.current) clearTimeout(perfectClearTimerRef.current);
+          setPerfectClearFlash(true);
+          perfectClearTimerRef.current = setTimeout(() => setPerfectClearFlash(false), 2000);
+        }, 0);
       }
 
       if (garbageToSend > 0) {
@@ -109,7 +121,7 @@ export function MultiplayerGame({
         backToBack: currentB2B,
         lines: prev.lines + cleared,
         level: Math.floor((prev.lines + cleared) / 10) + 1,
-        score: prev.score + (cleared === 4 ? 1200 : cleared * 100),
+        score: prev.score + (isPerfectClear ? 3000 : cleared === 4 ? 1200 : cleared * 100),
         gameOver: hasToppedOut
       };
 
@@ -350,8 +362,18 @@ export function MultiplayerGame({
             currentB2B = isPowerClear ? true : false;
           }
 
+          const isPerfectClear = cleared > 0 && clearedGrid.every((row: number[]) => row.every((cell: number) => cell === 0));
+
           let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack);
           if (currentCombo > 1) garbageToSend += Math.floor((currentCombo - 1) / 2);
+          if (isPerfectClear) {
+            garbageToSend += 10;
+            setTimeout(() => {
+              if (perfectClearTimerRef.current) clearTimeout(perfectClearTimerRef.current);
+              setPerfectClearFlash(true);
+              perfectClearTimerRef.current = setTimeout(() => setPerfectClearFlash(false), 2000);
+            }, 0);
+          }
 
           if (garbageToSend > 0) {
             onSendMessageRef.current({ type: "sendGarbage", playerId: playerIdRef.current, garbageLines: garbageToSend });
@@ -370,7 +392,7 @@ export function MultiplayerGame({
             backToBack: currentB2B,
             lines: prev.lines + cleared,
             level: Math.floor((prev.lines + cleared) / 10) + 1,
-            score: prev.score + (cleared === 4 ? 1200 : cleared * 100) + 20,
+            score: prev.score + (isPerfectClear ? 3000 : cleared === 4 ? 1200 : cleared * 100) + 20,
             gameOver: hasToppedOut
           };
           
@@ -426,6 +448,23 @@ export function MultiplayerGame({
             <button onClick={resetGame} className="px-6 py-3 bg-red-600 hover:bg-red-700 font-bold rounded-lg w-full text-white shadow-lg">
               TRY AGAIN
             </button>
+          </div>
+        </div>
+      )}
+
+      {perfectClearFlash && (
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-40">
+          <div style={{
+            background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+            padding: '16px 32px',
+            borderRadius: '12px',
+            border: '3px solid #a78bfa',
+            boxShadow: '0 0 60px #7c3aed88',
+            textAlign: 'center',
+            animation: 'fadeInOut 2s ease-in-out',
+          }}>
+            <div style={{ fontSize: '28px', fontWeight: 900, color: '#fff', letterSpacing: '0.1em' }}>✨ PERFECT CLEAR</div>
+            <div style={{ fontSize: '13px', color: '#c4b5fd', marginTop: '4px' }}>+10 lines sent!</div>
           </div>
         </div>
       )}
