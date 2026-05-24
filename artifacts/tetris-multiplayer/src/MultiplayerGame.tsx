@@ -46,6 +46,10 @@ export function MultiplayerGame({
   const lockResetCountRef = useRef<number>(0);
 
   const stateRef = useRef(gameState);
+  const onSendMessageRef = useRef(onSendMessage);
+  const playerIdRef = useRef(playerId);
+  useEffect(() => { onSendMessageRef.current = onSendMessage; }, [onSendMessage]);
+  useEffect(() => { playerIdRef.current = playerId; }, [playerId]);
 
   const finalizePiecePlacement = () => {
     if (lockTimeoutRef.current) {
@@ -95,7 +99,7 @@ export function MultiplayerGame({
       }
 
       if (garbageToSend > 0) {
-        onSendMessage({ type: "sendGarbage", playerId, garbageLines: garbageToSend });
+        onSendMessageRef.current({ type: "sendGarbage", playerId: playerIdRef.current, garbageLines: garbageToSend });
       }
 
       lastWasSpinRef.current = false;
@@ -117,9 +121,9 @@ export function MultiplayerGame({
 
       if (hasToppedOut) {
         setIsGameActive(false);
-        onSendMessage({ type: "gameOver", playerId, data: freshState });
+        onSendMessageRef.current({ type: "gameOver", playerId: playerIdRef.current, data: freshState });
       } else {
-        onSendMessage({ type: "gameState", playerId, data: freshState });
+        onSendMessageRef.current({ type: "gameState", playerId: playerIdRef.current, data: freshState });
       }
       return freshState;
     });
@@ -168,7 +172,7 @@ export function MultiplayerGame({
         
         if (nextMove) {
           setGameState((prev: any) => ({ ...prev, currentPiece: nextMove }));
-          onSendMessage({ type: "gameState", playerId, data: { ...stateRef.current, currentPiece: nextMove } });
+          onSendMessageRef.current({ type: "gameState", playerId: playerIdRef.current, data: { ...stateRef.current, currentPiece: nextMove } });
           
           if (lockTimeoutRef.current) {
             clearTimeout(lockTimeoutRef.current);
@@ -191,7 +195,7 @@ export function MultiplayerGame({
       cancelAnimationFrame(animationFrameId);
       if (lockTimeoutRef.current) clearTimeout(lockTimeoutRef.current);
     };
-  }, [isGameActive, gameState.gameOver, playerId, onSendMessage]);
+  }, [isGameActive, gameState.gameOver]);
 
   useEffect(() => {
     const handleLockDelayReset = () => {
@@ -303,7 +307,7 @@ export function MultiplayerGame({
             bag: workingBag,
             hasHeldThisTurn: true
           };
-          onSendMessage({ type: "gameState", playerId, data: freshState });
+          onSendMessageRef.current({ type: "gameState", playerId: playerIdRef.current, data: freshState });
           return freshState;
         });
       } else if (e.key === " ") {
@@ -353,7 +357,7 @@ export function MultiplayerGame({
           if (currentB2B && isPowerClear && prev.backToBack) garbageToSend += 1;
 
           if (garbageToSend > 0) {
-            onSendMessage({ type: "sendGarbage", playerId, garbageLines: garbageToSend });
+            onSendMessageRef.current({ type: "sendGarbage", playerId: playerIdRef.current, garbageLines: garbageToSend });
           }
 
           lastWasSpinRef.current = false;
@@ -375,9 +379,9 @@ export function MultiplayerGame({
           
           if (hasToppedOut) {
             setIsGameActive(false);
-            onSendMessage({ type: "gameOver", playerId, data: freshState });
+            onSendMessageRef.current({ type: "gameOver", playerId: playerIdRef.current, data: freshState });
           } else {
-            onSendMessage({ type: "gameState", playerId, data: freshState });
+            onSendMessageRef.current({ type: "gameState", playerId: playerIdRef.current, data: freshState });
           }
           return freshState;
         });
@@ -403,7 +407,7 @@ export function MultiplayerGame({
       clearDasTimers();
       clearSoftDropTimer();
     };
-  }, [isGameActive, playerId, onSendMessage]);
+  }, [isGameActive]);
 
   const resetGame = () => {
     setGameState(createInitialGameState());
