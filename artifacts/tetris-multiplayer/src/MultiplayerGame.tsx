@@ -38,7 +38,10 @@ export function MultiplayerGame({
   const [clutchFlash, setClutchFlash] = useState(false);
   const clutchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isDanger = gameState.grid.slice(0, 5).some((row: number[]) => row.some((cell: number) => cell > 0));
+  const isDanger = gameState.grid.slice(0, 5).some((row: number[]) => row.some((cell: number) => cell > 0 && cell !== 9));
+  const [is4Wide, setIs4Wide] = useState(false);
+  const is4WideRef = useRef(false);
+  useEffect(() => { is4WideRef.current = is4Wide; }, [is4Wide]);
   const dasDelay = 170;
   const arrRate = 30;
   const dasTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -70,6 +73,7 @@ export function MultiplayerGame({
 
       const finalizedGrid = placePiece(prev.grid, prev.currentPiece);
       const { grid: clearedGrid, cleared } = clearLines(finalizedGrid);
+      if (is4WideRef.current) for (let y=0;y<clearedGrid.length;y++) for (let c=4;c<10;c++) clearedGrid[y][c]=9;
 
       let workingBag = [...(prev.bag || [])];
       if (workingBag.length < 5) {
@@ -82,7 +86,7 @@ export function MultiplayerGame({
       const freshNextPiece = workingBag.shift()!;
       activeQueue.push(freshNextPiece);
 
-      const spawnPiece = { type: spawnType, x: 3, y: 0, rotation: 0 };
+      const spawnPiece = { type: spawnType, x: is4WideRef.current ? 0 : 3, y: 0, rotation: 0 };
       const hasToppedOut = !canPlacePiece(clearedGrid, spawnPiece);
 
       const isLineClear = cleared > 0;
@@ -170,16 +174,18 @@ export function MultiplayerGame({
       setGameState((prev: any) => {
         const updatedGrid = prev.grid.map((row: number[]) => [...row]);
         const messiness = 0.05;
-        let holeCol = Math.floor(Math.random() * 10);
+        const holeRange = is4WideRef.current ? 4 : 10;
+        let holeCol = Math.floor(Math.random() * holeRange);
         for (let i = 0; i < incomingGarbage; i++) {
           if (i > 0 && Math.random() < messiness) {
             let newCol;
-            do { newCol = Math.floor(Math.random() * 10); } while (newCol === holeCol);
+            do { newCol = Math.floor(Math.random() * holeRange); } while (newCol === holeCol);
             holeCol = newCol;
           }
           updatedGrid.shift();
           const garbageRow = Array(10).fill(8);
           garbageRow[holeCol] = 0;
+          if (is4WideRef.current) for (let c = 4; c < 10; c++) garbageRow[c] = 9;
           updatedGrid.push(garbageRow);
         }
         return { ...prev, grid: updatedGrid };
@@ -340,7 +346,7 @@ export function MultiplayerGame({
           const freshState = {
             ...prev,
             heldPiece: prev.currentPiece.type,
-            currentPiece: { type: spawningType, x: 3, y: 0, rotation: 0 },
+            currentPiece: { type: spawningType, x: is4WideRef.current ? 0 : 3, y: 0, rotation: 0 },
             nextPiece: activeQueue,
             bag: workingBag,
             hasHeldThisTurn: true
@@ -364,6 +370,7 @@ export function MultiplayerGame({
 
           const finalizedGrid = placePiece(prev.grid, currentPiece);
           const { grid: clearedGrid, cleared } = clearLines(finalizedGrid);
+          if (is4WideRef.current) for (let y=0;y<clearedGrid.length;y++) for (let c=4;c<10;c++) clearedGrid[y][c]=9;
 
           let workingBag = [...(prev.bag || [])];
           if (workingBag.length < 5) workingBag = [...workingBag, ...generateShuffledBag()];
@@ -374,7 +381,7 @@ export function MultiplayerGame({
           const freshNextPiece = workingBag.shift()!;
           activeQueue.push(freshNextPiece);
 
-          const spawnPiece = { type: spawnType, x: 3, y: 0, rotation: 0 };
+          const spawnPiece = { type: spawnType, x: is4WideRef.current ? 0 : 3, y: 0, rotation: 0 };
           const hasToppedOut = !canPlacePiece(clearedGrid, spawnPiece);
 
           const isLineClear = cleared > 0;
@@ -468,8 +475,24 @@ export function MultiplayerGame({
     };
   }, [isGameActive]);
 
+  const make4WideState = () => {
+    const s = createInitialGameState();
+    for (let y = 0; y < s.grid.length; y++) for (let c = 4; c < 10; c++) s.grid[y][c] = 9;
+    s.currentPiece = { ...s.currentPiece, x: 0 };
+    return s;
+  };
+
   const resetGame = () => {
-    setGameState(createInitialGameState());
+    setGameState(is4WideRef.current ? make4WideState() : createInitialGameState());
+    setOpponentGameOver(false);
+    setIsGameActive(true);
+  };
+
+  const toggle4Wide = () => {
+    const next = !is4Wide;
+    setIs4Wide(next);
+    is4WideRef.current = next;
+    setGameState(next ? make4WideState() : createInitialGameState());
     setOpponentGameOver(false);
     setIsGameActive(true);
   };
@@ -545,7 +568,25 @@ export function MultiplayerGame({
         </div>
 
         <div className="flex flex-col items-center">
-          <h2 className="text-xl font-bold mb-2 text-blue-400">You ({playerId})</h2>
+          <div className="flex items-center gap-2 mb-2">
+            <h2 className="text-xl font-bold text-blue-400">You ({playerId})</h2>
+            <button
+              onClick={toggle4Wide}
+              style={{
+                padding: '2px 8px',
+                borderRadius: '4px',
+                fontSize: '10px',
+                fontWeight: 900,
+                letterSpacing: '0.08em',
+                backgroundColor: is4Wide ? '#1d4ed8' : '#1f2937',
+                color: is4Wide ? '#bfdbfe' : '#6b7280',
+                border: `1px solid ${is4Wide ? '#3b82f6' : '#374151'}`,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+              title="Toggle 4-wide board (resets game)"
+            >4W</button>
+          </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingTop: '4px', width: '44px', alignItems: 'center' }}>
 
@@ -602,7 +643,7 @@ export function MultiplayerGame({
               )}
             </div>
             <div style={{ position: 'relative' }}>
-              <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} isDanger={isDanger} nextPieceType={gameState.nextPiece?.[0]} />
+              <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} isDanger={isDanger} nextPieceType={gameState.nextPiece?.[0]} is4Wide={is4Wide} />
               {isDanger && (
                 <div style={{
                   position: 'absolute', inset: 0, pointerEvents: 'none', borderRadius: '8px',

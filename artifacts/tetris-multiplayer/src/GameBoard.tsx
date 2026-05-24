@@ -7,6 +7,7 @@ interface GameBoardProps {
   isOpponent?: boolean;
   isDanger?: boolean;
   nextPieceType?: number;
+  is4Wide?: boolean;
 }
 
 const COLORS = [
@@ -18,7 +19,8 @@ const COLORS = [
   '#00f000',
   '#a000f0',
   '#f00000',
-  '#555555'
+  '#555555',
+  '#1e293b'  // 9 — 4-wide wall
 ];
 
 export function MiniGrid({ pieceId }: { pieceId: number | null }) {
@@ -58,7 +60,7 @@ export function MiniGrid({ pieceId }: { pieceId: number | null }) {
   return <canvas ref={canvasRef} width={64} height={64} style={{ backgroundColor: '#1f2937', display: 'block', borderRadius: '4px' }} />;
 }
 
-export function GameBoard({ grid, currentPiece, isOpponent = false, isDanger = false, nextPieceType }: GameBoardProps) {
+export function GameBoard({ grid, currentPiece, isOpponent = false, isDanger = false, nextPieceType, is4Wide = false }: GameBoardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const BLOCK_SIZE = 24;
 
@@ -140,6 +142,19 @@ export function GameBoard({ grid, currentPiece, isOpponent = false, isDanger = f
       });
     }
 
+    if (is4Wide) {
+      ctx.save();
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(4 * BLOCK_SIZE, 0);
+      ctx.lineTo(4 * BLOCK_SIZE, canvas.height);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     if (isDanger && nextPieceType && nextPieceType > 0) {
       const spawnShape = getTetromino(nextPieceType, 0);
       const spawnX = 3;
@@ -167,7 +182,7 @@ export function GameBoard({ grid, currentPiece, isOpponent = false, isDanger = f
       });
       ctx.restore();
     }
-  }, [grid, currentPiece, isDanger, nextPieceType]);
+  }, [grid, currentPiece, isDanger, nextPieceType, is4Wide]);
 
   return (
     <div style={{
