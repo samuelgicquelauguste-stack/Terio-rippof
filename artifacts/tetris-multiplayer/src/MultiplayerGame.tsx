@@ -569,7 +569,7 @@ export function MultiplayerGame({
                   <div>COMBO</div>
                 </div>
               )}
-              {gameState.combo > 1 && gameState.spikeLines > 0 && (
+              {gameState.combo >= 1 && gameState.spikeLines > 0 && (
                 <div style={{
                   padding: '4px 6px',
                   borderRadius: '4px',
