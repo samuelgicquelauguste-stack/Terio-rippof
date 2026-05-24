@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"app/page.tsx -> @/MultiplayerGame\":{\"id\":\"app/page.tsx -> @/MultiplayerGame\",\"files\":[\"static/chunks/_app-pages-browser_MultiplayerGame_tsx.js\"]}}"

@@ -1,0 +1,49 @@
+/* Pure CSS Layout Engine - Bypassing Tailwind completely */
+body {
+  background-color: #111827;
+  color: #ffffff;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Forces all of your game panels to align horizontally side-by-side */
+.flex-row-layout {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  width: 100%;
+}
+
+.sidebar-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  background-color: rgba(17, 24, 39, 0.5) !important;
+  border: 1px solid #1f2937 !important;
+  padding: 16px !important;
+  border-radius: 12px !important;
+  margin-top: 32px !important;
+}
+
+.next-queue-stack {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+/* Animated text styling for game streak counters */
+.combo-glow {
+  color: #f59e0b !important; /* Vibrant Orange-Yellow */
+  font-weight: 900 !important;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.6) !important;
+  animation: pulse 1s infinite alternate;
+}
+
+.b2b-glow {
+  color: #ec4899 !important; /* Hot Pink */
+  font-weight: 900 !important;
+  text-shadow: 0 0 10px rgba(236, 72, 153, 0.6) !important;
+}
