@@ -277,6 +277,11 @@ export function MultiplayerGame({
         setTimeout(handleLockDelayReset, 0);
       } else if (e.key === "Shift") {
         if (stateRef.current.hasHeldThisTurn) return;
+        if (lockTimeoutRef.current) {
+          clearTimeout(lockTimeoutRef.current);
+          lockTimeoutRef.current = null;
+          lockResetCountRef.current = 0;
+        }
         setGameState((prev: any) => {
           let workingBag = [...(prev.bag || [])];
           let activeQueue = [...(prev.nextPiece || [])];
@@ -302,6 +307,11 @@ export function MultiplayerGame({
           return freshState;
         });
       } else if (e.key === " ") {
+        if (lockTimeoutRef.current) {
+          clearTimeout(lockTimeoutRef.current);
+          lockTimeoutRef.current = null;
+          lockResetCountRef.current = 0;
+        }
         let currentPiece = { ...stateRef.current.currentPiece };
         let currentGrid = stateRef.current.grid;
         
