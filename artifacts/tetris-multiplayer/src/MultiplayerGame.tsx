@@ -143,10 +143,17 @@ export function MultiplayerGame({
     if (incomingGarbage > 0 && isGameActive && !gameState.gameOver) {
       setGameState((prev: any) => {
         const updatedGrid = prev.grid.map((row: number[]) => [...row]);
+        const messiness = 0.05;
+        let holeCol = Math.floor(Math.random() * 10);
         for (let i = 0; i < incomingGarbage; i++) {
+          if (i > 0 && Math.random() < messiness) {
+            let newCol;
+            do { newCol = Math.floor(Math.random() * 10); } while (newCol === holeCol);
+            holeCol = newCol;
+          }
           updatedGrid.shift();
           const garbageRow = Array(10).fill(8);
-          garbageRow[Math.floor(Math.random() * 10)] = 0;
+          garbageRow[holeCol] = 0;
           updatedGrid.push(garbageRow);
         }
         return { ...prev, grid: updatedGrid };
