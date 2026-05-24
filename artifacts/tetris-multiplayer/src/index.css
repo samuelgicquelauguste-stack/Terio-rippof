@@ -10,6 +10,24 @@
   100% { opacity: 0; transform: scale(0.9); }
 }
 
+@keyframes dangerPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+@keyframes dangerBorder {
+  0%, 100% { box-shadow: 0 0 0 2px #dc2626, 0 0 12px #dc262666; }
+  50%       { box-shadow: 0 0 0 3px #ef4444, 0 0 28px #ef444499; }
+}
+
+@keyframes clutchPop {
+  0%   { opacity: 0; transform: scale(0.7) translateY(10px); }
+  12%  { opacity: 1; transform: scale(1.12) translateY(-4px); }
+  22%  { opacity: 1; transform: scale(1); }
+  72%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.92) translateY(-6px); }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

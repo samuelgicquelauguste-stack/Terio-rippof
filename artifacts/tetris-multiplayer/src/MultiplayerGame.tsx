@@ -35,6 +35,10 @@ export function MultiplayerGame({
   const [opponentGameOver, setOpponentGameOver] = useState(false);
   const [perfectClearFlash, setPerfectClearFlash] = useState(false);
   const perfectClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [clutchFlash, setClutchFlash] = useState(false);
+  const clutchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isDanger = gameState.grid.slice(0, 5).some((row: number[]) => row.some((cell: number) => cell > 0));
   const dasDelay = 170;
   const arrRate = 30;
   const dasTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -93,6 +97,8 @@ export function MultiplayerGame({
       }
 
       const isPerfectClear = cleared > 0 && clearedGrid.every((row: number[]) => row.every((cell: number) => cell === 0));
+      const prevIsDanger = prev.grid.slice(0, 5).some((row: number[]) => row.some((cell: number) => cell > 0));
+      const isClutch = prevIsDanger && cleared > 0 && !isPerfectClear;
 
       let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack);
       if (currentCombo > 1) {
@@ -104,6 +110,12 @@ export function MultiplayerGame({
           if (perfectClearTimerRef.current) clearTimeout(perfectClearTimerRef.current);
           setPerfectClearFlash(true);
           perfectClearTimerRef.current = setTimeout(() => setPerfectClearFlash(false), 2000);
+        }, 0);
+      } else if (isClutch) {
+        setTimeout(() => {
+          if (clutchTimerRef.current) clearTimeout(clutchTimerRef.current);
+          setClutchFlash(true);
+          clutchTimerRef.current = setTimeout(() => setClutchFlash(false), 1500);
         }, 0);
       }
 
@@ -371,6 +383,8 @@ export function MultiplayerGame({
           }
 
           const isPerfectClear = cleared > 0 && clearedGrid.every((row: number[]) => row.every((cell: number) => cell === 0));
+          const prevIsDanger = prev.grid.slice(0, 5).some((row: number[]) => row.some((cell: number) => cell > 0));
+          const isClutch = prevIsDanger && cleared > 0 && !isPerfectClear;
 
           let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack);
           if (currentCombo > 1) garbageToSend += Math.floor((currentCombo - 1) / 2);
@@ -380,6 +394,12 @@ export function MultiplayerGame({
               if (perfectClearTimerRef.current) clearTimeout(perfectClearTimerRef.current);
               setPerfectClearFlash(true);
               perfectClearTimerRef.current = setTimeout(() => setPerfectClearFlash(false), 2000);
+            }, 0);
+          } else if (isClutch) {
+            setTimeout(() => {
+              if (clutchTimerRef.current) clearTimeout(clutchTimerRef.current);
+              setClutchFlash(true);
+              clutchTimerRef.current = setTimeout(() => setClutchFlash(false), 1500);
             }, 0);
           }
 
@@ -460,6 +480,23 @@ export function MultiplayerGame({
         </div>
       )}
 
+      {clutchFlash && (
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-40">
+          <div style={{
+            background: 'linear-gradient(135deg, #dc2626, #ea580c)',
+            padding: '14px 28px',
+            borderRadius: '12px',
+            border: '3px solid #fca5a5',
+            boxShadow: '0 0 60px #dc262688',
+            textAlign: 'center',
+            animation: 'clutchPop 1.5s ease-in-out',
+          }}>
+            <div style={{ fontSize: '26px', fontWeight: 900, color: '#fff', letterSpacing: '0.12em' }}>⚡ CLUTCH!</div>
+            <div style={{ fontSize: '12px', color: '#fecaca', marginTop: '3px' }}>Saved from the brink</div>
+          </div>
+        </div>
+      )}
+
       {perfectClearFlash && (
         <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-40">
           <div style={{
@@ -531,7 +568,16 @@ export function MultiplayerGame({
                 </div>
               )}
             </div>
-            <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} />
+            <div style={{ position: 'relative' }}>
+              <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} isDanger={isDanger} />
+              {isDanger && (
+                <div style={{
+                  position: 'absolute', inset: 0, pointerEvents: 'none', borderRadius: '8px',
+                  background: 'linear-gradient(to bottom, rgba(220,38,38,0.18) 0%, transparent 40%)',
+                  animation: 'dangerPulse 0.8s ease-in-out infinite',
+                }} />
+              )}
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', width: '10px', height: `${20 * 24}px`, backgroundColor: '#111827', borderRadius: '3px', overflow: 'hidden', border: '1px solid #1f2937' }}>
               {Array.from({ length: 20 }).map((_, i) => {
                 const rowFromBottom = 20 - i;

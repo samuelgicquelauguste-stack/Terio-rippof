@@ -5,6 +5,7 @@ interface GameBoardProps {
   grid: number[][];
   currentPiece?: { type: number; x: number; y: number; rotation: number };
   isOpponent?: boolean;
+  isDanger?: boolean;
 }
 
 const COLORS = [
@@ -56,7 +57,7 @@ export function MiniGrid({ pieceId }: { pieceId: number | null }) {
   return <canvas ref={canvasRef} width={64} height={64} style={{ backgroundColor: '#1f2937', display: 'block', borderRadius: '4px' }} />;
 }
 
-export function GameBoard({ grid, currentPiece, isOpponent = false }: GameBoardProps) {
+export function GameBoard({ grid, currentPiece, isOpponent = false, isDanger = false }: GameBoardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const BLOCK_SIZE = 24;
 
@@ -140,7 +141,14 @@ export function GameBoard({ grid, currentPiece, isOpponent = false }: GameBoardP
   }, [grid, currentPiece]);
 
   return (
-    <div style={{ padding: '8px', backgroundColor: '#1f2937', borderRadius: '8px', border: isOpponent ? '2px solid #ef4444' : '2px solid #3b82f6' }}>
+    <div style={{
+      padding: '8px',
+      backgroundColor: '#1f2937',
+      borderRadius: '8px',
+      border: isDanger ? '2px solid #ef4444' : isOpponent ? '2px solid #ef4444' : '2px solid #3b82f6',
+      animation: isDanger ? 'dangerBorder 0.8s ease-in-out infinite' : undefined,
+      transition: 'border-color 0.2s',
+    }}>
       <canvas ref={canvasRef} width={10 * 24} height={20 * 24} style={{ backgroundColor: '#111827', display: 'block' }} />
     </div>
   );
