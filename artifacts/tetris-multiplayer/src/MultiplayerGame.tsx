@@ -58,10 +58,10 @@ export function MultiplayerGame({
     }
     lockResetCountRef.current = 0;
 
-    let finalizedGrid = placePiece(stateRef.current.grid, stateRef.current.currentPiece);
-    const { grid: clearedGrid, cleared } = clearLines(finalizedGrid);
-
     setGameState((prev: any) => {
+      const finalizedGrid = placePiece(prev.grid, prev.currentPiece);
+      const { grid: clearedGrid, cleared } = clearLines(finalizedGrid);
+
       let workingBag = [...(prev.bag || [])];
       if (workingBag.length < 5) {
         workingBag = [...workingBag, ...generateShuffledBag()];
@@ -317,19 +317,17 @@ export function MultiplayerGame({
           lockTimeoutRef.current = null;
           lockResetCountRef.current = 0;
         }
-        let currentPiece = { ...stateRef.current.currentPiece };
-        let currentGrid = stateRef.current.grid;
-        
-        let testPiece = movePieceDown(currentGrid, currentPiece);
-        while (testPiece !== null) {
-          currentPiece = testPiece;
-          testPiece = movePieceDown(currentGrid, currentPiece);
-        }
-
-        let finalizedGrid = placePiece(currentGrid, currentPiece);
-        const { grid: clearedGrid, cleared } = clearLines(finalizedGrid);
-        
         setGameState((prev: any) => {
+          let currentPiece = { ...prev.currentPiece };
+          let testPiece = movePieceDown(prev.grid, currentPiece);
+          while (testPiece !== null) {
+            currentPiece = testPiece;
+            testPiece = movePieceDown(prev.grid, currentPiece);
+          }
+
+          const finalizedGrid = placePiece(prev.grid, currentPiece);
+          const { grid: clearedGrid, cleared } = clearLines(finalizedGrid);
+
           let workingBag = [...(prev.bag || [])];
           if (workingBag.length < 5) workingBag = [...workingBag, ...generateShuffledBag()];
 
