@@ -1,6 +1,6 @@
 "use client";
 
-import { GameMessage, GameState } from "@/lib/gameConstants";
+import { GameMessage, GameState } from "@/gameConstants";
 
 export class GameWebSocketClient {
   private ws: WebSocket | null = null;
