@@ -272,16 +272,40 @@ export function calculateScore(linesCleared: number, combo: number = 0, isBackTo
   return Math.floor(base * comboMultiplier * b2bMultiplier);
 }
 
-export function calculateGarbageSent(linesCleared: number, isTSpin: boolean = false, isB2B: boolean = false): number {
+// Official garbage table — indexed by combo (0 = first isolated clear, 1 = second consecutive, …)
+// Columns 0-20 match the official "Garbage sent at combo" table.
+const GARBAGE_SINGLE    = [0,0,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3];
+const GARBAGE_DOUBLE    = [1,1,1,1,1,2,2,2,2,2,3,3,3,3,4,4,4,5,5,5,5];
+const GARBAGE_TRIPLE    = [2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12];
+const GARBAGE_QUAD      = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
+const GARBAGE_TSPIN1    = [2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12];   // T-Spin Single
+const GARBAGE_TSPIN2    = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]; // T-Spin Double
+const GARBAGE_TSPIN3    = [6,7,9,10,12,13,15,16,18,19,21,22,24,25,27,28,30,31,33,34,36]; // T-Spin Triple
+
+// b2bLevel: 0 = not in B2B, 1 = chain 1-2, 2 = chain 3-7, 3 = chain 8-23, 4 = chain 24+
+// combo: currentCombo value (1 = first isolated clear → table col 0)
+export function calculateGarbageSent(
+  linesCleared: number,
+  isTSpin: boolean = false,
+  b2bLevel: number = 0,
+  combo: number = 1
+): number {
+  if (linesCleared <= 0) return 0;
+  const col = Math.min(Math.max(combo - 1, 0), 20);
+  const b2bBonus = b2bLevel; // +1/+2/+3/+4 for B2B levels 1-4
   let base: number;
   if (isTSpin) {
-    const tTable = [0, 2, 4, 6];
-    base = tTable[Math.min(linesCleared, 3)] ?? 0;
+    if (linesCleared === 1)      base = GARBAGE_TSPIN1[col];
+    else if (linesCleared === 2) base = GARBAGE_TSPIN2[col];
+    else                         base = GARBAGE_TSPIN3[col];
+    base += b2bBonus;
   } else {
-    const table = [0, 0, 1, 2, 4];
-    base = table[Math.min(linesCleared, 4)] ?? 0;
+    if (linesCleared === 1)      base = GARBAGE_SINGLE[col];
+    else if (linesCleared === 2) base = GARBAGE_DOUBLE[col];
+    else if (linesCleared === 3) base = GARBAGE_TRIPLE[col];
+    else                         base = GARBAGE_QUAD[col];
+    if (linesCleared === 4)      base += b2bBonus; // B2B bonus only on Quads for non-T-spin
   }
-  if (isB2B && linesCleared > 0) base += 1;
   return base;
 }
 

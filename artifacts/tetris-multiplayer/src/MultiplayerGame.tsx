@@ -101,10 +101,10 @@ export function MultiplayerGame({
       const prevIsDanger = prev.grid.slice(0, 5).some((row: number[]) => row.some((cell: number) => cell > 0));
       const isClutch = prevIsDanger && cleared > 0 && !isPerfectClear;
 
-      let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack > 0);
-      if (currentCombo > 1) {
-        garbageToSend += Math.floor((currentCombo - 1) / 2);
-      }
+      const b2bLevel = (isPowerClear && prev.backToBack > 0)
+        ? prev.backToBack >= 24 ? 4 : prev.backToBack >= 8 ? 3 : prev.backToBack >= 3 ? 2 : 1
+        : 0;
+      let garbageToSend = calculateGarbageSent(cleared, isTSpin, b2bLevel, currentCombo);
       if (isB2BBreak) {
         garbageToSend += Math.min(Math.ceil(prev.backToBack / 4), 3);
       }
@@ -392,8 +392,10 @@ export function MultiplayerGame({
           const prevIsDanger = prev.grid.slice(0, 5).some((row: number[]) => row.some((cell: number) => cell > 0));
           const isClutch = prevIsDanger && cleared > 0 && !isPerfectClear;
 
-          let garbageToSend = calculateGarbageSent(cleared, isTSpin, isPowerClear && prev.backToBack > 0);
-          if (currentCombo > 1) garbageToSend += Math.floor((currentCombo - 1) / 2);
+          const b2bLevel = (isPowerClear && prev.backToBack > 0)
+            ? prev.backToBack >= 24 ? 4 : prev.backToBack >= 8 ? 3 : prev.backToBack >= 3 ? 2 : 1
+            : 0;
+          let garbageToSend = calculateGarbageSent(cleared, isTSpin, b2bLevel, currentCombo);
           if (isB2BBreak) {
             garbageToSend += Math.min(Math.ceil(prev.backToBack / 4), 3);
           }
