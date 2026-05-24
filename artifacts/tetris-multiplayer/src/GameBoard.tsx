@@ -6,6 +6,7 @@ interface GameBoardProps {
   currentPiece?: { type: number; x: number; y: number; rotation: number };
   isOpponent?: boolean;
   isDanger?: boolean;
+  nextPieceType?: number;
 }
 
 const COLORS = [
@@ -57,7 +58,7 @@ export function MiniGrid({ pieceId }: { pieceId: number | null }) {
   return <canvas ref={canvasRef} width={64} height={64} style={{ backgroundColor: '#1f2937', display: 'block', borderRadius: '4px' }} />;
 }
 
-export function GameBoard({ grid, currentPiece, isOpponent = false, isDanger = false }: GameBoardProps) {
+export function GameBoard({ grid, currentPiece, isOpponent = false, isDanger = false, nextPieceType }: GameBoardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const BLOCK_SIZE = 24;
 
@@ -138,7 +139,35 @@ export function GameBoard({ grid, currentPiece, isOpponent = false, isDanger = f
         });
       });
     }
-  }, [grid, currentPiece]);
+
+    if (isDanger && nextPieceType && nextPieceType > 0) {
+      const spawnShape = getTetromino(nextPieceType, 0);
+      const spawnX = 3;
+      const spawnY = 0;
+      ctx.save();
+      spawnShape.forEach((row, dy) => {
+        row.forEach((value, dx) => {
+          if (value === 0) return;
+          const cx = (spawnX + dx) * BLOCK_SIZE;
+          const cy = (spawnY + dy) * BLOCK_SIZE;
+          const cellAlreadyFilled = grid[spawnY + dy]?.[spawnX + dx] > 0;
+          ctx.strokeStyle = cellAlreadyFilled ? '#ff2222' : '#ff6666';
+          ctx.lineWidth = cellAlreadyFilled ? 2.5 : 1.5;
+          ctx.globalAlpha = cellAlreadyFilled ? 0.9 : 0.5;
+          const pad = 4;
+          ctx.beginPath();
+          ctx.moveTo(cx + pad, cy + pad);
+          ctx.lineTo(cx + BLOCK_SIZE - 1 - pad, cy + BLOCK_SIZE - 1 - pad);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(cx + BLOCK_SIZE - 1 - pad, cy + pad);
+          ctx.lineTo(cx + pad, cy + BLOCK_SIZE - 1 - pad);
+          ctx.stroke();
+        });
+      });
+      ctx.restore();
+    }
+  }, [grid, currentPiece, isDanger, nextPieceType]);
 
   return (
     <div style={{
@@ -146,7 +175,7 @@ export function GameBoard({ grid, currentPiece, isOpponent = false, isDanger = f
       backgroundColor: '#1f2937',
       borderRadius: '8px',
       border: isDanger ? '2px solid #ef4444' : isOpponent ? '2px solid #ef4444' : '2px solid #3b82f6',
-      animation: isDanger ? 'dangerBorder 0.8s ease-in-out infinite' : undefined,
+      animation: isDanger ? 'dangerBorder 2s ease-in-out infinite' : undefined,
       transition: 'border-color 0.2s',
     }}>
       <canvas ref={canvasRef} width={10 * 24} height={20 * 24} style={{ backgroundColor: '#111827', display: 'block' }} />

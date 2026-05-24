@@ -569,12 +569,12 @@ export function MultiplayerGame({
               )}
             </div>
             <div style={{ position: 'relative' }}>
-              <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} isDanger={isDanger} />
+              <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} isDanger={isDanger} nextPieceType={gameState.nextPiece?.[0]} />
               {isDanger && (
                 <div style={{
                   position: 'absolute', inset: 0, pointerEvents: 'none', borderRadius: '8px',
                   background: 'linear-gradient(to bottom, rgba(220,38,38,0.18) 0%, transparent 40%)',
-                  animation: 'dangerPulse 0.8s ease-in-out infinite',
+                  animation: 'dangerPulse 2s ease-in-out infinite',
                 }} />
               )}
             </div>
