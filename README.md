@@ -200,6 +200,8 @@ To deploy this game online:
 
 For Vercel deployment, note that WebSocket servers need to be hosted separately (serverless functions don't support persistent WebSocket connections).
 
+If you deploy the frontend to Vercel, set `NEXT_PUBLIC_WS_SERVER_URL` in your Vercel environment variables to the public address of your WebSocket backend (for example `your-backend.example.com:8080`).
+
 ## License
 
 This project is open source and available for personal use.

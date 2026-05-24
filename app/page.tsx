@@ -12,11 +12,12 @@ const MultiplayerGame = dynamic(
 );
 
 export default function Home() {
+  const defaultServerUrl = process.env.NEXT_PUBLIC_WS_SERVER_URL ?? "localhost:8080";
   const [mounted, setMounted] = useState(false);
   const [playerId, setPlayerId] = useState("");
   const [connected, setConnected] = useState(false);
   const [opponentGameState, setOpponentGameState] = useState<GameState | null>(null);
-  const [serverUrl, setServerUrl] = useState("localhost:8080");
+  const [serverUrl, setServerUrl] = useState(defaultServerUrl);
   const [showSettings, setShowSettings] = useState(true);
   const [gameStateRef, setGameStateRef] = useState<GameState | null>(null);
   const [incomingGarbage, setIncomingGarbage] = useState(0);
@@ -106,7 +107,7 @@ export default function Home() {
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
               />
               <p className="text-xs text-gray-400 mt-2">
-                Default: localhost:8080 (if running server locally)
+                Default: {defaultServerUrl} {defaultServerUrl === "localhost:8080" ? "(use a deployed backend URL for public multiplayer)" : ""}
               </p>
             </div>
 
