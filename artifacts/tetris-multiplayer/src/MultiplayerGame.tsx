@@ -449,20 +449,42 @@ export function MultiplayerGame({
 
         <div className="flex flex-col items-center">
           <h2 className="text-xl font-bold mb-2 text-blue-400">You ({playerId})</h2>
-          <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} />
-          <div className="mt-2 flex gap-2 h-7 items-center justify-center w-full">
-            {gameState.backToBack && (
-              <span className="px-2 py-0.5 rounded text-xs font-extrabold tracking-widest uppercase bg-purple-700 text-purple-100 shadow">
-                B2B
-              </span>
-            )}
-            {gameState.combo > 1 && (
-              <span className="px-2 py-0.5 rounded text-xs font-extrabold tracking-widest bg-orange-500 text-white shadow">
-                {gameState.combo}× COMBO
-              </span>
-            )}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingTop: '4px', width: '44px', alignItems: 'center' }}>
+              <div style={{
+                padding: '4px 6px',
+                borderRadius: '4px',
+                fontSize: '10px',
+                fontWeight: 900,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                textAlign: 'center',
+                backgroundColor: gameState.backToBack ? '#7e22ce' : '#1f2937',
+                color: gameState.backToBack ? '#e9d5ff' : '#4b5563',
+                border: `1px solid ${gameState.backToBack ? '#a855f7' : '#374151'}`,
+                transition: 'all 0.15s',
+                lineHeight: 1.3,
+              }}>B2B</div>
+              {gameState.combo > 1 && (
+                <div style={{
+                  padding: '4px 6px',
+                  borderRadius: '4px',
+                  fontSize: '10px',
+                  fontWeight: 900,
+                  textAlign: 'center',
+                  backgroundColor: '#c2410c',
+                  color: '#fff',
+                  border: '1px solid #f97316',
+                  lineHeight: 1.3,
+                }}>
+                  <div style={{ fontSize: '14px' }}>{gameState.combo}×</div>
+                  <div>REN</div>
+                </div>
+              )}
+            </div>
+            <GameBoard grid={gameState.grid} currentPiece={gameState.currentPiece} />
           </div>
-          <div className="mt-1 grid grid-cols-3 gap-4 text-center bg-gray-800 p-3 rounded-lg w-full">
+          <div className="mt-2 grid grid-cols-3 gap-4 text-center bg-gray-800 p-3 rounded-lg w-full">
             <div><p className="text-xs text-gray-400">Score</p><p className="text-lg font-bold text-yellow-400">{gameState.score}</p></div>
             <div><p className="text-xs text-gray-400">Lines</p><p className="text-lg font-bold text-white">{gameState.lines}</p></div>
             <div><p className="text-xs text-gray-400">Level</p><p className="text-lg font-bold text-cyan-400">{gameState.level}</p></div>
